@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# image will be published to ghcr.io/<user>/<name>
+name: desktop-os
+# description will be included in the image's metadata
+description: OS image for desktop.
+
+# the base image to build on top of (FROM) and the version tag to use
+base-image: ghcr.io/ublue-os/sericea-main
+image-version: 41
+
+modules:
+  - from-file: desktop/apps.yml
+  - from-file: desktop/greeter.yml
+
+  - type: signing # this sets up the proper policy & signing files for signed images to work fully
+
