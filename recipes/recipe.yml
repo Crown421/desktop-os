@@ -17,7 +17,7 @@ stages:
         snippets:
           - apt-get update && apt-get install -y git # Install git
           - git clone https://github.com/rharish101/ReGreet.git
-          - cd ReGeet && cargo build --release
+          - cd ReGreet && cargo build --release
           # - mkdir -p /out/ && mv $CARGO_HOME/bin/hx /out/hx && mv runtime /out/ # Move bin and runtime
 
 # module configuration, executed in order
