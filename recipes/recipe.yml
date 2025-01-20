@@ -9,6 +9,17 @@ description: OS image for desktop.
 base-image: ghcr.io/ublue-os/sericea-main
 image-version: 41 # latest is also supported if you want new updates ASAP
 
+stages:
+  - name: regreet
+    from: docker.io/library/rust
+    modules:
+      - type: script
+        snippets:
+          - apt-get update && apt-get install -y git # Install git
+          - git clone https://github.com/rharish101/ReGreet.git
+          - cd ReGeet && cargo build --release
+          # - mkdir -p /out/ && mv $CARGO_HOME/bin/hx /out/hx && mv runtime /out/ # Move bin and runtime
+
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
