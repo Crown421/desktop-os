@@ -9,6 +9,17 @@ description: OS image for desktop.
 base-image: ghcr.io/ublue-os/sericea-main
 image-version: 41 # latest is also supported if you want new updates ASAP
 
+stages:
+  - name: regreet
+    from: docker.io/library/rust
+    modules:
+      - type: script
+        snippets:
+          - apt-get update && apt-get install -y git libgtk-4-dev # Install git
+          - git clone https://github.com/rharish101/ReGreet.git
+          - cd ReGreet && cargo build --release
+          - mkdir -p /out/ && mv ReGreet/target/release /out/regreet
+
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
@@ -40,6 +51,10 @@ modules:
       remove:
         - org.gnome.eog
     user: {} # Also add Flathub user repo, but no user packages
+  - type: copy
+    from: regreet
+    src: /out/regreet
+    dest: /usr/bin/
   - type: files
     files:
       - source: system/etc/greetd
