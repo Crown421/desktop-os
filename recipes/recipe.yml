@@ -17,8 +17,9 @@ stages:
         snippets:
           - apt-get update && apt-get install -y git # Install git
           - git clone https://github.com/rharish101/ReGreet.git
-          - cd ReGreet && cargo build --release
-          # - mkdir -p /out/ && mv $CARGO_HOME/bin/hx /out/hx && mv runtime /out/ # Move bin and runtime
+          - cd ReGreet
+          - cargo build --release
+          - mkdir -p /out/ && mv target/release /out/regreet
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
@@ -51,6 +52,10 @@ modules:
       remove:
         - org.gnome.eog
     user: {} # Also add Flathub user repo, but no user packages
+  - type: copy
+    from: regreet
+    src: /out/regreet
+    dest: /usr/bin/
   - type: files
     files:
       - source: system/etc/greetd
