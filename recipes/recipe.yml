@@ -15,7 +15,7 @@ stages:
     modules:
       - type: script
         snippets:
-          - apt-get update && apt-get install -y git # Install git
+          - apt-get update && apt-get install -y git libgtk-4-dev # Install git
           - git clone https://github.com/rharish101/ReGreet.git
           - cd ReGreet && cargo build --release
           - mkdir -p /out/ && mv ReGreet/target/release /out/regreet
