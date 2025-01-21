@@ -2,10 +2,12 @@ modules:
   - type: rpm-ostree
     repos:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+      - https://cli.github.com/packages/rpm/gh-cli.repo
     install:
       - tailscale
       - zsh
       - kitty
+      - gh
     remove:
       # example: removing firefox (in favor of the flatpak)
       - firefox
