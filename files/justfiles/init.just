@@ -1,8 +1,3 @@
-default:
-    @just --list
-
-set shell := ["bash", "-cu"]
-
 # Initialize Chezmoi with GitHub authentication, SSH key generation, and remote URL update
 init_chezmoi:
     gh auth login --web
