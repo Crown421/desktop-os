@@ -15,4 +15,6 @@ modules:
   # - from-file: desktop/greeter.yml
   - type: chezmoi
     repository: "https://github.com/Crown421/atomic-dots"
+  - type: justfiles
+    validate: true
   - type: signing
