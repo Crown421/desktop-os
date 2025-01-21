@@ -1,0 +1,25 @@
+modules:
+  - type: rpm-ostree
+    repos:
+      - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+    install:
+      - tailscale
+      - zsh
+      - kitty
+    remove:
+      # example: removing firefox (in favor of the flatpak)
+      - firefox
+      - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+  - type: default-flatpaks
+    system:
+      # If no repo information is specified, Flathub will be used by default
+      install:
+        - org.mozilla.firefox
+        - com.visualstudio.code
+        - com.logseq.Logseq
+        - org.zotero.Zotero
+        - org.flameshot.Flameshot
+        - com.bitwarden.desktop
+      remove:
+        - org.gnome.eog
+    # user: {} # Also add Flathub user repo, but no user packages
