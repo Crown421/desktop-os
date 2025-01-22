@@ -23,6 +23,8 @@ modules:
         - org.zotero.Zotero
         - org.flameshot.Flameshot
         - com.bitwarden.desktop
+        - com.nextcloud.desktopclient.nextcloud
+        - org.kde.okular
       remove:
         - org.gnome.eog
     # user: {} # Also add Flathub user repo, but no user packages
