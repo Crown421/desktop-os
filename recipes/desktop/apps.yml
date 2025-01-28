@@ -3,12 +3,14 @@ modules:
     repos:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://cli.github.com/packages/rpm/gh-cli.repo
+      - https://packages.microsoft.com/yumrepos/vscode/config.repo
     install:
       - tailscale
       - zsh
       - kitty
       - gh
       - chromium
+      - code
     remove:
       # example: removing firefox (in favor of the flatpak)
       - firefox
@@ -18,7 +20,7 @@ modules:
       # If no repo information is specified, Flathub will be used by default
       install:
         - org.mozilla.firefox
-        - com.visualstudio.code
+        # - com.visualstudio.code
         - com.logseq.Logseq
         - org.zotero.Zotero
         - org.flameshot.Flameshot
