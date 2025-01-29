@@ -7,6 +7,7 @@ modules:
     install:
       - tailscale
       - kitty
+      - zsh
       - gh
       - chromium
       - code
