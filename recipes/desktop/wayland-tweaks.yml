@@ -1,0 +1,9 @@
+modules:
+  - type: script
+    snippets:
+      - chmod 644 /usr/share/applications/code.desktop
+      - sed -i 's|^\(Exec=chromium-browser\) |\1 --ozone-platform=wayland |' /usr/share/applications/chromium-browser.desktop
+  - type: files
+    files:
+      - source: system/etc/environment.d
+        destination: /etc/environment.d

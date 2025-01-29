@@ -11,6 +11,7 @@ image-version: 41
 
 modules:
   - from-file: desktop/apps.yml
+  - from-file: desktop/wayland-tweaks.yml
   ## on device this is not working, but default sddm is.
   # - from-file: desktop/greeter.yml
   - type: chezmoi
