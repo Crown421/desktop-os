@@ -11,6 +11,7 @@ modules:
       - gh
       - chromium
       - code
+      - https://github.com/joshuar/go-hass-agent/releases/download/v11.1.2/go-hass-agent-11.1.2-1.aarch64.rpm
     remove:
       # example: removing firefox (in favor of the flatpak)
       - firefox
