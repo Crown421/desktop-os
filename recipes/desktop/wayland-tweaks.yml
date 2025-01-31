@@ -10,4 +10,5 @@ modules:
         destination: /usr/lib/environment.d
   - type: systemd
     user:
-      enabled: kanshi.service
+      enabled: 
+        - kanshi.service
