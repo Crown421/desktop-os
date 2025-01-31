@@ -8,3 +8,6 @@ modules:
     files:
       - source: system/usr/lib/environment.d
         destination: /usr/lib/environment.d
+  - type: systemd
+    user:
+      enabled: kanshi.service
