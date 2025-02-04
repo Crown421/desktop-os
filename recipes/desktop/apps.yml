@@ -1,9 +1,16 @@
 modules:
+  - type:
+    fonts:
+      nerd-fonts:
+        - Cousine
+      google-fonts:
+        - Source Sans 3 
   - type: rpm-ostree
     repos:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://cli.github.com/packages/rpm/gh-cli.repo
       - https://packages.microsoft.com/yumrepos/vscode/config.repo
+      - https://dvc.org/rpm/dvc.repo
     install:
       - tailscale
       - kitty
@@ -12,6 +19,7 @@ modules:
       - chromium
       - code
       - https://github.com/joshuar/go-hass-agent/releases/download/v11.1.2/go-hass-agent-11.1.2-1.x86_64.rpm
+      - dvc
     remove:
       # example: removing firefox (in favor of the flatpak)
       - firefox
@@ -27,7 +35,11 @@ modules:
         - com.bitwarden.desktop
         - com.nextcloud.desktopclient.nextcloud
         - org.kde.okular
+        - com.bitwarden.desktop
       remove:
         - org.gnome.eog
         - com.visualstudio.code
     # user: {} # Also add Flathub user repo, but no user packages
+  - type: script
+    scripts:
+      - install-mani.sh
