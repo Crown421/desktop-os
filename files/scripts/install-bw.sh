@@ -13,8 +13,7 @@ if ! curl -fsSL -o bw.zip "$url"; then
     exit 1
 fi
 
-# bindir='/usr/bin'
-bindir='/home/steffen/Code/desktop-os'
+bindir='/usr/bin'
 
 unzip bw.zip
 
