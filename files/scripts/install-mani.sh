@@ -1,21 +1,17 @@
 #!/usr/bin/env bash
 
-# Tell this script to exit if there are any errors.
-# You should have this in every custom script, to ensure that your completed
-# builds actually ran successfully without any errors!
 set -oue pipefail
 
-# Your code goes here.
 url=$(
-    fetch https://api.github.com/repos/alajmo/mani/releases/latest |
-    tac | tac | grep -wo -m1 "https://.*linux_amd64.tar.gz" || true
+    curl -s https://api.github.com/repos/alajmo/mani/releases/latest |
+    grep -wo -m1 "https://.*linux_amd64.tar.gz" || true
 )
 
 temp_dir=$(mktemp -dt mani.XXXXXX)
 trap 'rm -rf "$temp_dir"' EXIT INT TERM
 cd "$temp_dir"
 
-if ! fetch mani.tar.gz "$url"; then
+if ! curl -fsSL -o mani.tar.gz "$url"; then
     echo "Could not download tarball"
     exit 1
 fi
@@ -26,4 +22,4 @@ tar xzf mani.tar.gz
 
 mv mani "$bindir/"
 
-$bindir/mani version
+$bindir/mani --version
