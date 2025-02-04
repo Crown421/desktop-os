@@ -1,4 +1,7 @@
 modules:
+  - type: script
+    scripts:
+      - install-mani.sh
   - type: fonts
     fonts:
       nerd-fonts:
@@ -42,6 +45,3 @@ modules:
         - org.gnome.eog
         - com.visualstudio.code
     # user: {} # Also add Flathub user repo, but no user packages
-  - type: script
-    scripts:
-      - install-mani.sh
