@@ -37,11 +37,12 @@ modules:
         - com.bitwarden.desktop
         - com.nextcloud.desktopclient.nextcloud
         - org.kde.okular
-        - com.bitwarden.desktop
       remove:
         - org.gnome.eog
         - com.visualstudio.code
+        - com.bitwarden.desktop
     - type: script
       scripts:
         - install-mani.sh
+        - install-bw.sh
     # user: {} # Also add Flathub user repo, but no user packages
