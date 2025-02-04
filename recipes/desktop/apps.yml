@@ -11,6 +11,8 @@ modules:
       - https://cli.github.com/packages/rpm/gh-cli.repo
       - https://packages.microsoft.com/yumrepos/vscode/config.repo
       - https://dvc.org/rpm/dvc.repo
+    keys:
+      - https://dvc.org/rpm/iterative.asc
     install:
       - tailscale
       - kitty
