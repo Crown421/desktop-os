@@ -41,8 +41,8 @@ modules:
         - org.gnome.eog
         - com.visualstudio.code
         - com.bitwarden.desktop
-    - type: script
-      scripts:
-        - install-mani.sh
-        - install-bw.sh
+  - type: script
+    scripts:
+      - install-mani.sh
+      - install-bw.sh
     # user: {} # Also add Flathub user repo, but no user packages
