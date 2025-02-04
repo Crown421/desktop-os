@@ -16,7 +16,7 @@ if ! curl -fsSL -o mani.tar.gz "$url"; then
     exit 1
 fi
 
-bindir='/usr/local/bin'
+bindir='/usr/bin'
 
 tar xzf mani.tar.gz
 
