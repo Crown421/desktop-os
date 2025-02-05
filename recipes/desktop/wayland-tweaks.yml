@@ -9,6 +9,9 @@ modules:
       - source: system/usr/lib/environment.d
         destination: /usr/lib/environment.d
   - type: systemd
+    system:
+      enabled:
+        - tailscaled
     user:
       enabled: 
         - kanshi.service
