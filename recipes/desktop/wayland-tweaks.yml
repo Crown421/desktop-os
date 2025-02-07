@@ -1,6 +1,7 @@
 modules:
   - type: script
     snippets:
+      - sed -i 's|^\(Exec=/usr/share/code/code\) |\1 --password-store="gnome-libsecret" |' /usr/share/applications/code.desktop
       - chmod 644 /usr/share/applications/code.desktop
       - sed -i 's|^\(Exec=chromium-browser\) |\1 --ozone-platform=wayland |' /usr/share/applications/chromium-browser.desktop
       - sed -i 's|^\(Exec=/usr/bin/chromium-browser\) |\1 --ozone-platform=wayland |' /usr/share/applications/chromium-browser.desktop
