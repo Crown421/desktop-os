@@ -2,7 +2,8 @@
 
 set -oue pipefail
 
-url="https://vault.bitwarden.com/download/?app=cli&platform=linux"
+# url="https://vault.bitwarden.com/download/?app=cli&platform=linux"
+url="https://github.com/bitwarden/sdk-sm/releases/download/bws-v0.5.0/bws-x86_64-unknown-linux-gnu-0.5.0.zip"
 
 temp_dir=$(mktemp -dt bw.XXXXXX)
 trap 'rm -rf "$temp_dir"' EXIT INT TERM
