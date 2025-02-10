@@ -21,7 +21,7 @@ modules:
       - chromium
       - code
       # - https://github.com/joshuar/go-hass-agent/releases/download/v11.1.2/go-hass-agent-11.1.2-1.x86_64.rpm
-      - darkman
+      # - darkman
     remove:
       # example: removing firefox (in favor of the flatpak)
       - firefox
@@ -37,6 +37,7 @@ modules:
         # - com.bitwarden.desktop
         - com.nextcloud.desktopclient.nextcloud
         - org.kde.okular
+        - org.gnome.Calculator
       remove:
         - org.gnome.eog
         - com.visualstudio.code
