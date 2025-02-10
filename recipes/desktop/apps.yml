@@ -22,6 +22,7 @@ modules:
       - code
       # - https://github.com/joshuar/go-hass-agent/releases/download/v11.1.2/go-hass-agent-11.1.2-1.x86_64.rpm
       - darkman
+      - ddcutil
     remove:
       - firefox
       - firefox-langpacks
