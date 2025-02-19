@@ -4,7 +4,8 @@ modules:
       nerd-fonts:
         - Cousine
       google-fonts:
-        - Source Sans 3 
+        - Source Sans 3
+        - Material Icons
   - type: rpm-ostree
     repos:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
