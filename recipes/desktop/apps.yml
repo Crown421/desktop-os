@@ -1,11 +1,4 @@
 modules:
-  - type: fonts
-    fonts:
-      nerd-fonts:
-        - Cousine
-      google-fonts:
-        - Source Sans 3
-        - Material Icons
   - type: rpm-ostree
     repos:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
@@ -23,6 +16,7 @@ modules:
       - code
       # - https://github.com/joshuar/go-hass-agent/releases/download/v11.1.2/go-hass-agent-11.1.2-1.x86_64.rpm
       - ddcutil
+      - powertop
     remove:
       - firefox
       - firefox-langpacks
