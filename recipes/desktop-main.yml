@@ -6,8 +6,8 @@ name: desktop-os
 description: OS image for desktop.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/sericea-main
-image-version: 41
+base-image: ghcr.io/ublue-os/sway-atomic-main
+image-version: 42
 
 modules:
   - from-file: desktop/apps.yml
