@@ -14,7 +14,7 @@ modules:
       - gh
       - chromium
       - code
-      # - https://github.com/joshuar/go-hass-agent/releases/download/v11.1.2/go-hass-agent-11.1.2-1.x86_64.rpm
+      - https://github.com/joshuar/go-hass-agent/releases/download/v13.2.4/go-hass-agent-13.2.4-1.x86_64.rpm
       - ddcutil
       - powertop
       - power-profiles-daemon
