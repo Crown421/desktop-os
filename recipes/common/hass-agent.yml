@@ -1,0 +1,4 @@
+modules:
+  - type: rpm-ostree
+    install:
+      - https://github.com/joshuar/go-hass-agent/releases/download/v13.2.4/go-hass-agent-13.2.4-1.x86_64.rpm

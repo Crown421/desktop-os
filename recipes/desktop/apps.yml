@@ -4,9 +4,6 @@ modules:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://cli.github.com/packages/rpm/gh-cli.repo
       - https://packages.microsoft.com/yumrepos/vscode/config.repo
-      - https://dvc.org/rpm/dvc.repo
-    keys:
-      - https://dvc.org/rpm/iterative.asc
     install:
       - tailscale
       - kitty
@@ -14,7 +11,6 @@ modules:
       - gh
       - chromium
       - code
-      - https://github.com/joshuar/go-hass-agent/releases/download/v13.2.4/go-hass-agent-13.2.4-1.x86_64.rpm
       - ddcutil
       - powertop
       - power-profiles-daemon
