@@ -37,3 +37,7 @@ modules:
       # - install-mani.sh
       - install-bw.sh
     # user: {} # Also add Flathub user repo, but no user packages
+  - type: copy
+    from: matcha
+    src: /out/matcha
+    dest: /usr/bin/
