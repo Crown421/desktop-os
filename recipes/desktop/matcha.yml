@@ -1,0 +1,10 @@
+stages:
+  - name: matcha
+    from: docker.io/library/debian:stable-slim
+    modules:
+      - type: script
+        snippets:
+          - apt-get update && apt-get install -y git meson cmake pkg-config libwayland-dev
+          - git clone https://codeberg.org/QuincePie/matcha.git
+          - cd matcha && meson setup build --buildtype=release && meson compile -C build
+          - mkdir -p /out/ && mv matcha/build/matcha /out/matcha
