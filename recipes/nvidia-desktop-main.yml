@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# image will be published to ghcr.io/<user>/<name>
+name: nvidia-desktop-os
+# description will be included in the image's metadata
+description: OS image for nvidia desktop.
+
+# the base image to build on top of (FROM) and the version tag to use
+base-image: ghcr.io/ublue-os/sway-atomic-nvidia
+image-version: 42
+
+stages:
+  - from-file: desktop/matcha.yml
+
+modules:
+  - from-file: desktop/apps.yml
+  - from-file: common/hass-agent.yml
+  - from-file: desktop/wayland-tweaks.yml
+  ## on device this is not working, but default sddm is.
+  # - from-file: desktop/greeter.yml
+  - type: chezmoi
+    repository: "https://github.com/Crown421/atomic-dots"
+  - type: justfiles
+    validate: true
+  - type: signing
