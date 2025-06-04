@@ -14,6 +14,7 @@ modules:
       - ddcutil
       - powertop
       - power-profiles-daemon
+      - https://github.com/Crown421/guayusa-wl/releases/download/0.1.0/guayusa-wl-0.1.0-1.x86_64.rpm
     remove:
       - firefox
       - firefox-langpacks
@@ -28,6 +29,8 @@ modules:
         - com.nextcloud.desktopclient.nextcloud
         - org.kde.okular
         - org.gnome.Calculator
+        - org.kde.filelight
+        - net.lutris.Lutris
       remove:
         - org.gnome.eog
         - com.visualstudio.code
