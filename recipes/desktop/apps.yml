@@ -14,7 +14,7 @@ modules:
       - ddcutil
       - powertop
       - power-profiles-daemon
-      - https://github.com/Crown421/guayusa-wl/releases/download/0.1.1/guayusa-wl-0.1.1-1.x86_64.rpm
+      - https://github.com/Crown421/guayusa-wl/releases/download/0.1.2/guayusa-wl-0.1.2-1.x86_64.rpm
     remove:
       - firefox
       - firefox-langpacks
@@ -40,7 +40,7 @@ modules:
       # - install-mani.sh
       - install-bw.sh
     # user: {} # Also add Flathub user repo, but no user packages
-  - type: copy
-    from: matcha
-    src: /out/matcha
-    dest: /usr/bin/
+  # - type: copy
+  #   from: matcha
+  #   src: /out/matcha
+  #   dest: /usr/bin/

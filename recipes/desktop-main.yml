@@ -9,8 +9,8 @@ description: OS image for desktop.
 base-image: ghcr.io/ublue-os/sway-atomic-main
 image-version: 42
 
-stages:
-  - from-file: desktop/matcha.yml
+# stages:
+#   - from-file: desktop/matcha.yml
 
 modules:
   - from-file: desktop/apps.yml
