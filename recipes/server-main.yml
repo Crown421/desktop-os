@@ -12,3 +12,6 @@ image-version: stable
 modules:
   - from-file: common/hass-agent.yml
   - type: signing
+  - type: rpm-ostree
+    install:
+      - autorestic
