@@ -15,3 +15,5 @@ modules:
   - type: rpm-ostree
     install:
       - autorestic
+  - type: chezmoi
+    repository: "https://github.com/Crown421/container-dots"
