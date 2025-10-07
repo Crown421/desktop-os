@@ -15,6 +15,7 @@ modules:
       - powertop
       - https://github.com/Crown421/guayusa-wl/releases/download/0.1.2/guayusa-wl-0.1.2-1.x86_64.rpm
       - hunspell-de
+      - podman-compose
     remove:
       - firefox
       - firefox-langpacks
