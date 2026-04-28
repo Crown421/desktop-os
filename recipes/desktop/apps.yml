@@ -42,8 +42,16 @@ modules:
     scripts:
       # - install-mani.sh
       - install-bw.sh
+  - type: dnf
+    repos:
+      copr:
+        enable:
+          - jdxcode/mise
+    install:
+      packages:
+        - mise
     # user: {} # Also add Flathub user repo, but no user packages
-  # - type: copy
-  #   from: matcha
-  #   src: /out/matcha
-  #   dest: /usr/bin/
+    # - type: copy
+    #   from: matcha
+    #   src: /out/matcha
+    #   dest: /usr/bin/
