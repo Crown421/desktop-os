@@ -16,7 +16,6 @@ modules:
         - gh
         - chromium
         - code
-        - ddcutil
         - powertop
         - https://github.com/Crown421/guayusa-wl/releases/download/0.1.2/guayusa-wl-0.1.2-1.x86_64.rpm
         - hunspell-de
