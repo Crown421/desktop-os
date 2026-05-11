@@ -17,7 +17,6 @@ modules:
         - chromium
         - code
         - powertop
-        - https://github.com/Crown421/guayusa-wl/releases/download/0.1.2/guayusa-wl-0.1.2-1.x86_64.rpm
         - hunspell-de
         - podman-compose
         - mise
@@ -26,6 +25,12 @@ modules:
         - firefox
         - firefox-langpacks
         - hunspell-en
+  # The 0.1.2 RPM contains an unexpanded %systemd_user_post macro in %post.
+  # dnf treats that scriptlet failure as fatal
+  # Move this back to dnf once fixed.
+  - type: rpm-ostree
+    install:
+      - https://github.com/Crown421/guayusa-wl/releases/download/0.1.2/guayusa-wl-0.1.2-1.x86_64.rpm
   - type: default-flatpaks
     configurations:
       - notify: false
