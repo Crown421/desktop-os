@@ -4,8 +4,8 @@ This repo builds OS images based on Fedora Atomic, using [BlueBuild](https://blu
 
 ## Overview
 This repo contains three images
-- __desktop-main__: Based on Fedora Sway Atomic, this OS runs on my laptop with an AMD 8840U CPU and integrated GPU.
-- __nvidia-main__: Functionally identical to the desktop-main, this image also contains nvidia drivers and runs on my desktop PC with a nvidia GPU.
+- __desktop-main__: Based on Wayblue Sway, this OS runs on my laptop with an AMD 8840U CPU and integrated GPU.
+- __nvidia-desktop-main__: Functionally similar to the desktop-main image, this image is based on Wayblue Sway NVIDIA Open and runs on my desktop PC with a nvidia GPU.
 - __server-main__: A Fedora CoreOS based image that runs my little home server, a Wyse 5070. 
 
 ## Why atomic
@@ -25,7 +25,7 @@ Then, rebase the existing atomic Fedora installation to the latest build:
 
 - First rebase to the unsigned image, to get the proper signing keys and policies installed:
   ```
-  rpm-ostree rebase ostree-unverified-registry:ghcr.io/crown421/desktop-os:42
+  rpm-ostree rebase ostree-unverified-registry:ghcr.io/crown421/desktop-os:latest
   ```
 - Reboot to complete the rebase:
   ```
@@ -33,14 +33,14 @@ Then, rebase the existing atomic Fedora installation to the latest build:
   ```
 - Then rebase to the signed image, like so:
   ```
-  rpm-ostree rebase ostree-image-signed:docker://ghcr.io/crown421/desktop-os:42
+  rpm-ostree rebase ostree-image-signed:docker://ghcr.io/crown421/desktop-os:latest
   ```
 - Reboot again to complete the installation
   ```
   systemctl reboot
   ```
 
-The `latest` tag will automatically point to the latest build. That build will still always use the Fedora version specified in `recipe.yml`, so you won't get accidentally updated to the next major version.
+The desktop images are pinned to the Wayblue Fedora 43 tags. Update the recipe versions deliberately when moving to a newer Fedora major version.
 
 ## Verification
 
