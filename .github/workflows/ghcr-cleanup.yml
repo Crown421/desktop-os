@@ -1,0 +1,200 @@
+name: ghcr-cleanup
+
+on:
+  schedule:
+    - cron: "17 03 * * *" # daily at 03:17 UTC; increase temporarily if backlog clearance is too slow
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Delete matching versions. Leave false to dry-run."
+        type: boolean
+        required: true
+        default: false
+      package:
+        description: "Limit cleanup to one package."
+        type: choice
+        required: true
+        default: all
+        options:
+          - all
+          - desktop-os
+          - nvidia-desktop-os
+          - server-os
+      keep_recent_tagged:
+        description: "Keep this many recent non-protected tagged versions per package."
+        type: string
+        required: true
+        default: "26"
+      max_deletions_per_package:
+        description: "Safety cap for deletions per package in one run."
+        type: string
+        required: true
+        default: "200"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Clean ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - desktop-os
+          - nvidia-desktop-os
+          - server-os
+    steps:
+      - name: Prune old container versions
+        uses: actions/github-script@v7
+        env:
+          APPLY: ${{ github.event_name == 'schedule' || inputs.apply }}
+          KEEP_RECENT: ${{ github.event_name == 'workflow_dispatch' && inputs.keep_recent_tagged || '26' }}
+          MAX_DELETIONS: ${{ github.event_name == 'workflow_dispatch' && inputs.max_deletions_per_package || '200' }}
+          PACKAGE_NAME: ${{ matrix.package }}
+          TARGET_PACKAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.package || 'all' }}
+        with:
+          github-token: ${{ secrets.GHCR_ADMIN_TOKEN || github.token }}
+          script: |
+            const core = require("@actions/core");
+
+            const owner = context.repo.owner;
+            const ownerType = context.payload.repository?.owner?.type;
+            const packageName = process.env.PACKAGE_NAME;
+            const targetPackage = process.env.TARGET_PACKAGE;
+            const apply = process.env.APPLY === "true";
+            const keepRecent = Number(process.env.KEEP_RECENT);
+            const maxDeletions = Number(process.env.MAX_DELETIONS);
+
+            if (targetPackage !== "all" && targetPackage !== packageName) {
+              core.info(`Skipping ${packageName}; manual run is targeting ${targetPackage}.`);
+              return;
+            }
+
+            if (!Number.isInteger(keepRecent) || keepRecent < 0) {
+              core.setFailed(`Invalid KEEP_RECENT value: ${process.env.KEEP_RECENT}`);
+              return;
+            }
+
+            if (!Number.isInteger(maxDeletions) || maxDeletions < 1) {
+              core.setFailed(`Invalid MAX_DELETIONS value: ${process.env.MAX_DELETIONS}`);
+              return;
+            }
+
+            const isOrg = ownerType === "Organization";
+            const listRoute = isOrg
+              ? "GET /orgs/{org}/packages/{package_type}/{package_name}/versions"
+              : "GET /users/{username}/packages/{package_type}/{package_name}/versions";
+            const deleteRoute = isOrg
+              ? "DELETE /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}"
+              : "DELETE /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}";
+
+            const routeParams = {
+              package_type: "container",
+              package_name: packageName,
+              per_page: 100,
+              ...(isOrg ? { org: owner } : { username: owner }),
+            };
+            const deleteParamsBase = {
+              package_type: "container",
+              package_name: packageName,
+              ...(isOrg ? { org: owner } : { username: owner }),
+            };
+
+            const versions = await github.paginate(listRoute, routeParams);
+            const byNewest = [...versions].sort(
+              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+            );
+
+            const protectedTagPattern = /^(latest|stable|\d+)$/;
+            const untagged = [];
+            const protectedTagged = [];
+            const normalTagged = [];
+
+            for (const version of byNewest) {
+              const tags = version.metadata?.container?.tags ?? [];
+
+              if (tags.length === 0) {
+                untagged.push(version);
+                continue;
+              }
+
+              if (tags.some((tag) => protectedTagPattern.test(tag))) {
+                protectedTagged.push(version);
+                continue;
+              }
+
+              normalTagged.push(version);
+            }
+
+            const keptNormalTagged = normalTagged.slice(0, keepRecent);
+            const taggedToDelete = normalTagged.slice(keepRecent).sort(
+              (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            );
+            const untaggedToDelete = [...untagged].sort(
+              (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            );
+
+            const deletionCandidates = [...untaggedToDelete, ...taggedToDelete];
+            const plannedDeletes = deletionCandidates.slice(0, maxDeletions);
+
+            const renderVersion = (version) => {
+              const tags = version.metadata?.container?.tags ?? [];
+              return `${version.id} ${version.created_at} tags=[${tags.join(", ")}]`;
+            };
+
+            core.info(`Package: ${packageName}`);
+            core.info(`Owner: ${owner} (${ownerType ?? "unknown"})`);
+            core.info(`Mode: ${apply ? "apply" : "dry-run"}`);
+            core.info(`Versions found: ${versions.length}`);
+            core.info(`Protected tagged versions: ${protectedTagged.length}`);
+            core.info(`Recent tagged versions kept by policy: ${keptNormalTagged.length}`);
+            core.info(`Untagged deletion candidates: ${untaggedToDelete.length}`);
+            core.info(`Tagged deletion candidates: ${taggedToDelete.length}`);
+            core.info(`Deletion cap this run: ${maxDeletions}`);
+            core.info(`Planned deletions this run: ${plannedDeletes.length}`);
+
+            if (keptNormalTagged.length > 0) {
+              core.info("Newest normal tagged versions kept:");
+              for (const version of keptNormalTagged.slice(0, 10)) {
+                core.info(`  KEEP ${renderVersion(version)}`);
+              }
+            }
+
+            if (plannedDeletes.length > 0) {
+              core.info("Versions selected for deletion:");
+              for (const version of plannedDeletes.slice(0, 25)) {
+                core.info(`  DELETE ${renderVersion(version)}`);
+              }
+              if (plannedDeletes.length > 25) {
+                core.info(`  ... ${plannedDeletes.length - 25} more omitted from log`);
+              }
+            }
+
+            await core.summary
+              .addHeading(`GHCR cleanup: ${packageName}`)
+              .addRaw(`Mode: ${apply ? "apply" : "dry-run"}`, true)
+              .addRaw(`Versions found: ${versions.length}`, true)
+              .addRaw(`Protected tagged versions: ${protectedTagged.length}`, true)
+              .addRaw(`Recent tagged versions kept: ${keptNormalTagged.length}`, true)
+              .addRaw(`Untagged deletion candidates: ${untaggedToDelete.length}`, true)
+              .addRaw(`Tagged deletion candidates: ${taggedToDelete.length}`, true)
+              .addRaw(`Planned deletions this run: ${plannedDeletes.length}`, true)
+              .write();
+
+            if (!apply || plannedDeletes.length === 0) {
+              return;
+            }
+
+            for (const version of plannedDeletes) {
+              await github.request(deleteRoute, {
+                ...deleteParamsBase,
+                package_version_id: version.id,
+              });
+              core.info(`Deleted ${renderVersion(version)}`);
+            }
