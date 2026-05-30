@@ -61,8 +61,6 @@ jobs:
         with:
           github-token: ${{ secrets.GHCR_ADMIN_TOKEN || github.token }}
           script: |
-            const core = require("@actions/core");
-
             const owner = context.repo.owner;
             const ownerType = context.payload.repository?.owner?.type;
             const packageName = process.env.PACKAGE_NAME;
