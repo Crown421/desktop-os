@@ -17,5 +17,6 @@ modules:
       packages:
         - restic
         - prometheus-podman-exporter
+        - zsh
   - type: chezmoi
     repository: "https://github.com/Crown421/container-dots"

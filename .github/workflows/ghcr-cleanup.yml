@@ -105,14 +105,29 @@ jobs:
             };
 
             const versions = await github.paginate(listRoute, routeParams);
+            const openPulls = await github.paginate("GET /repos/{owner}/{repo}/pulls", {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100,
+            });
+            const openPrNumbers = new Set(openPulls.map((pull) => String(pull.number)));
             const byNewest = [...versions].sort(
               (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
             );
 
-            const protectedTagPattern = /^(latest|stable|\d+)$/;
+            const protectedTagPattern = /^(latest|stable|\d{1,3})$/;
+            const prTagPattern = /^pr-(\d+)(?:-\d+)?(?:-cache)?$/;
+            const signatureTagPattern = /^sha256-([a-f0-9]+)\.(sig|att)$/;
+            const cacheTagPattern = /(?:^|-)cache$/;
+            const releaseTagPattern = /^(?:\d{8}(?:-\d{1,3})?|[a-f0-9]{7,12}-\d{1,3})$/;
             const untagged = [];
             const protectedTagged = [];
-            const normalTagged = [];
+            const pullRequestTagged = [];
+            const signatureTagged = [];
+            const cacheTagged = [];
+            const releaseTagged = [];
+            const otherTagged = [];
 
             for (const version of byNewest) {
               const tags = version.metadata?.container?.tags ?? [];
@@ -127,61 +142,177 @@ jobs:
                 continue;
               }
 
-              normalTagged.push(version);
+              const matchedPrs = [...new Set(
+                tags
+                  .map((tag) => tag.match(prTagPattern)?.[1])
+                  .filter(Boolean),
+              )];
+
+              if (matchedPrs.length > 0) {
+                pullRequestTagged.push({ version, prNumbers: matchedPrs });
+                continue;
+              }
+
+              if (tags.every((tag) => signatureTagPattern.test(tag))) {
+                signatureTagged.push(version);
+                continue;
+              }
+
+              if (tags.some((tag) => cacheTagPattern.test(tag))) {
+                cacheTagged.push(version);
+                continue;
+              }
+
+              if (tags.some((tag) => releaseTagPattern.test(tag))) {
+                releaseTagged.push(version);
+                continue;
+              }
+
+              otherTagged.push(version);
             }
 
-            const keptNormalTagged = normalTagged.slice(0, keepRecent);
-            const taggedToDelete = normalTagged.slice(keepRecent).sort(
+            const openPullRequestTagged = [];
+            const closedPullRequestTagged = [];
+
+            for (const entry of pullRequestTagged) {
+              if (entry.prNumbers.some((number) => openPrNumbers.has(number))) {
+                openPullRequestTagged.push(entry.version);
+              } else {
+                closedPullRequestTagged.push(entry.version);
+              }
+            }
+
+            const keptReleaseTagged = releaseTagged.slice(0, keepRecent);
+            const staleReleaseTagged = releaseTagged.slice(keepRecent).sort(
               (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
             );
             const untaggedToDelete = [...untagged].sort(
               (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
             );
+            const closedPullRequestToDelete = [...closedPullRequestTagged].sort(
+              (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            );
+            const cacheToDelete = [...cacheTagged].sort(
+              (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            );
 
-            const deletionCandidates = [...untaggedToDelete, ...taggedToDelete];
+            const retainedManifestVersions = [
+              ...protectedTagged,
+              ...openPullRequestTagged,
+              ...keptReleaseTagged,
+            ];
+            const retainedManifestDigests = new Set(
+              retainedManifestVersions
+                .map((version) => version.name)
+                .filter((name) => /^sha256:[a-f0-9]+$/i.test(name)),
+            );
+            const retainedSignatureTags = new Set();
+
+            for (const digest of retainedManifestDigests) {
+              const hexDigest = digest.replace("sha256:", "");
+              retainedSignatureTags.add(`sha256-${hexDigest}.sig`);
+              retainedSignatureTags.add(`sha256-${hexDigest}.att`);
+            }
+
+            const keptSignatureTagged = [];
+            const staleSignatureTagged = [];
+            const canPruneSignatures =
+              signatureTagged.length === 0 || retainedSignatureTags.size > 0;
+
+            for (const version of signatureTagged) {
+              const tags = version.metadata?.container?.tags ?? [];
+              if (
+                canPruneSignatures &&
+                tags.some((tag) => retainedSignatureTags.has(tag))
+              ) {
+                keptSignatureTagged.push(version);
+              } else if (!canPruneSignatures) {
+                keptSignatureTagged.push(version);
+              } else {
+                staleSignatureTagged.push(version);
+              }
+            }
+
+            const signatureToDelete = [...staleSignatureTagged].sort(
+              (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            );
+            const otherTaggedToDelete = [...otherTagged].sort(
+              (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+            );
+
+            const deletionCandidates = [
+              ...untaggedToDelete,
+              ...closedPullRequestToDelete,
+              ...cacheToDelete,
+              ...signatureToDelete,
+              ...staleReleaseTagged,
+              ...otherTaggedToDelete,
+            ];
             const plannedDeletes = deletionCandidates.slice(0, maxDeletions);
 
             const renderVersion = (version) => {
               const tags = version.metadata?.container?.tags ?? [];
               return `${version.id} ${version.created_at} tags=[${tags.join(", ")}]`;
             };
+            const logExamples = (title, versions, prefix = "KEEP", limit = 10) => {
+              if (versions.length === 0) {
+                return;
+              }
+              core.info(title);
+              for (const version of versions.slice(0, limit)) {
+                core.info(`  ${prefix} ${renderVersion(version)}`);
+              }
+              if (versions.length > limit) {
+                core.info(`  ... ${versions.length - limit} more omitted from log`);
+              }
+            };
 
             core.info(`Package: ${packageName}`);
             core.info(`Owner: ${owner} (${ownerType ?? "unknown"})`);
             core.info(`Mode: ${apply ? "apply" : "dry-run"}`);
             core.info(`Versions found: ${versions.length}`);
+            core.info(`Open PRs found: ${openPrNumbers.size}`);
             core.info(`Protected tagged versions: ${protectedTagged.length}`);
-            core.info(`Recent tagged versions kept by policy: ${keptNormalTagged.length}`);
+            core.info(`Open PR tagged versions kept: ${openPullRequestTagged.length}`);
+            core.info(`Recent release tagged versions kept by policy: ${keptReleaseTagged.length}`);
+            core.info(`Signature versions kept: ${keptSignatureTagged.length}`);
+            core.info(`Signature pruning enabled: ${canPruneSignatures}`);
             core.info(`Untagged deletion candidates: ${untaggedToDelete.length}`);
-            core.info(`Tagged deletion candidates: ${taggedToDelete.length}`);
+            core.info(`Closed PR tagged deletion candidates: ${closedPullRequestToDelete.length}`);
+            core.info(`Cache tagged deletion candidates: ${cacheToDelete.length}`);
+            core.info(`Signature deletion candidates: ${signatureToDelete.length}`);
+            core.info(`Release tagged deletion candidates: ${staleReleaseTagged.length}`);
+            core.info(`Other tagged deletion candidates: ${otherTaggedToDelete.length}`);
             core.info(`Deletion cap this run: ${maxDeletions}`);
             core.info(`Planned deletions this run: ${plannedDeletes.length}`);
 
-            if (keptNormalTagged.length > 0) {
-              core.info("Newest normal tagged versions kept:");
-              for (const version of keptNormalTagged.slice(0, 10)) {
-                core.info(`  KEEP ${renderVersion(version)}`);
-              }
-            }
-
-            if (plannedDeletes.length > 0) {
-              core.info("Versions selected for deletion:");
-              for (const version of plannedDeletes.slice(0, 25)) {
-                core.info(`  DELETE ${renderVersion(version)}`);
-              }
-              if (plannedDeletes.length > 25) {
-                core.info(`  ... ${plannedDeletes.length - 25} more omitted from log`);
-              }
-            }
+            logExamples("Protected tagged versions kept:", protectedTagged);
+            logExamples("Open PR tagged versions kept:", openPullRequestTagged);
+            logExamples("Newest release tagged versions kept:", keptReleaseTagged);
+            logExamples("Signature versions kept:", keptSignatureTagged);
+            logExamples("Closed PR tagged versions selected for deletion:", closedPullRequestToDelete, "DELETE");
+            logExamples("Cache tagged versions selected for deletion:", cacheToDelete, "DELETE");
+            logExamples("Signature versions selected for deletion:", signatureToDelete, "DELETE");
+            logExamples("Release tagged versions selected for deletion:", staleReleaseTagged, "DELETE");
+            logExamples("Other tagged versions selected for deletion:", otherTaggedToDelete, "DELETE");
+            logExamples("Untagged versions selected for deletion:", untaggedToDelete, "DELETE", 15);
 
             await core.summary
               .addHeading(`GHCR cleanup: ${packageName}`)
               .addRaw(`Mode: ${apply ? "apply" : "dry-run"}`, true)
               .addRaw(`Versions found: ${versions.length}`, true)
+              .addRaw(`Open PRs found: ${openPrNumbers.size}`, true)
               .addRaw(`Protected tagged versions: ${protectedTagged.length}`, true)
-              .addRaw(`Recent tagged versions kept: ${keptNormalTagged.length}`, true)
+              .addRaw(`Open PR tagged versions kept: ${openPullRequestTagged.length}`, true)
+              .addRaw(`Recent release tagged versions kept: ${keptReleaseTagged.length}`, true)
+              .addRaw(`Signature versions kept: ${keptSignatureTagged.length}`, true)
+              .addRaw(`Signature pruning enabled: ${canPruneSignatures}`, true)
               .addRaw(`Untagged deletion candidates: ${untaggedToDelete.length}`, true)
-              .addRaw(`Tagged deletion candidates: ${taggedToDelete.length}`, true)
+              .addRaw(`Closed PR tagged deletion candidates: ${closedPullRequestToDelete.length}`, true)
+              .addRaw(`Cache tagged deletion candidates: ${cacheToDelete.length}`, true)
+              .addRaw(`Signature deletion candidates: ${signatureToDelete.length}`, true)
+              .addRaw(`Release tagged deletion candidates: ${staleReleaseTagged.length}`, true)
+              .addRaw(`Other tagged deletion candidates: ${otherTaggedToDelete.length}`, true)
               .addRaw(`Planned deletions this run: ${plannedDeletes.length}`, true)
               .write();
 
