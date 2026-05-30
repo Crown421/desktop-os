@@ -1,0 +1,15 @@
+modules:
+  # Packages present in Wayblue Sway 43, but not in Fedora Sway Atomic 43.
+  # Keep this module unimported unless switching a desktop recipe back to the
+  # official Fedora Sway Atomic base.
+  - type: dnf
+    install:
+      packages:
+        - ddcutil
+        - xfce-polkit
+        - wofi
+        - firewall-config
+        - gnome-disk-utility
+        - distrobox
+        # - steam-devices
+        # - android-tools

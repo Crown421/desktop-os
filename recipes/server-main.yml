@@ -12,8 +12,10 @@ image-version: stable
 modules:
   - from-file: common/hass-agent.yml
   - type: signing
-  - type: rpm-ostree
+  - type: dnf
     install:
-      - autorestic
+      packages:
+        - restic
+        - prometheus-podman-exporter
   - type: chezmoi
     repository: "https://github.com/Crown421/container-dots"

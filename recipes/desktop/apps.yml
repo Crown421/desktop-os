@@ -1,25 +1,31 @@
 modules:
-  - type: rpm-ostree
+  - type: dnf
     repos:
-      - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-      - https://cli.github.com/packages/rpm/gh-cli.repo
-      - https://packages.microsoft.com/yumrepos/vscode/config.repo
+      files:
+        - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+        - https://cli.github.com/packages/rpm/gh-cli.repo
+        - https://packages.microsoft.com/yumrepos/vscode/config.repo
+      copr:
+        enable:
+          - jdxcode/mise
     install:
-      - tailscale
-      - kitty
-      - zsh
-      - gh
-      - chromium
-      - code
-      - ddcutil
-      - powertop
-      - https://github.com/Crown421/guayusa-wl/releases/download/0.1.2/guayusa-wl-0.1.2-1.x86_64.rpm
-      - hunspell-de
-      - podman-compose
+      packages:
+        - tailscale
+        - kitty
+        - zsh
+        - gh
+        - chromium
+        - code
+        - powertop
+        - https://github.com/Crown421/guayusa-wl/releases/download/0.1.3/guayusa-wl-0.1.3-1.x86_64.rpm
+        - hunspell-de
+        - podman-compose
+        - mise
     remove:
-      - firefox
-      - firefox-langpacks
-      - hunspell-en
+      packages:
+        - firefox
+        - firefox-langpacks
+        - hunspell-en
   - type: default-flatpaks
     configurations:
       - notify: false
@@ -42,16 +48,4 @@ modules:
     scripts:
       # - install-mani.sh
       - install-bw.sh
-  - type: dnf
-    repos:
-      copr:
-        enable:
-          - jdxcode/mise
-    install:
-      packages:
-        - mise
     # user: {} # Also add Flathub user repo, but no user packages
-    # - type: copy
-    #   from: matcha
-    #   src: /out/matcha
-    #   dest: /usr/bin/

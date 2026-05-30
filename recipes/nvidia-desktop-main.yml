@@ -6,11 +6,8 @@ name: nvidia-desktop-os
 description: OS image for nvidia desktop.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/sway-atomic-nvidia
-image-version: 42
-
-stages:
-  - from-file: desktop/matcha.yml
+base-image: ghcr.io/wayblueorg/sway-nvidia-open
+image-version: 43
 
 modules:
   - from-file: desktop/apps.yml
