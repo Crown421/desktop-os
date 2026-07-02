@@ -13,10 +13,16 @@ modules:
   - from-file: common/hass-agent.yml
   - type: signing
   - type: dnf
+    repos:
+      files:
+        - kubernetes.repo
+        - rancher-k3s-common.repo
     install:
       packages:
         - restic
         - prometheus-podman-exporter
         - zsh
+        - kubectl
+        - k3s-selinux
   - type: chezmoi
     repository: "https://github.com/Crown421/container-dots"
