@@ -27,6 +27,7 @@ modules:
         - firefox
         - firefox-langpacks
         - hunspell-en
+    no-cache: true
   - type: default-flatpaks
     configurations:
       - notify: false
