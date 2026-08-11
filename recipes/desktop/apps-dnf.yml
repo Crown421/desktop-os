@@ -1,5 +1,6 @@
 modules:
   - type: dnf
+    no-cache: true
     repos:
       files:
         - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
@@ -27,4 +28,3 @@ modules:
         - firefox
         - firefox-langpacks
         - hunspell-en
-    no-cache: true

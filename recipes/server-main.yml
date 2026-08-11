@@ -10,8 +10,10 @@ base-image: ghcr.io/ublue-os/ucore
 image-version: stable
 
 modules:
-  - type: signing
+  - type: chezmoi
+    repository: "https://github.com/Crown421/container-dots"
   - type: dnf
+    no-cache: true
     repos:
       files:
         - kubernetes.repo
@@ -23,5 +25,4 @@ modules:
         - zsh
         - kubectl
         - k3s-selinux
-  - type: chezmoi
-    repository: "https://github.com/Crown421/container-dots"
+  - type: signing
