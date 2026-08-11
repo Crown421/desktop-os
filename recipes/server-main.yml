@@ -10,7 +10,6 @@ base-image: ghcr.io/ublue-os/ucore
 image-version: stable
 
 modules:
-  - from-file: common/hass-agent.yml
   - type: signing
   - type: dnf
     repos:

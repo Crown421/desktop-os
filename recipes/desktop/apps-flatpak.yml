@@ -1,0 +1,24 @@
+modules:
+  - type: default-flatpaks
+    configurations:
+      - notify: false
+        scope: system
+        install:
+          - org.mozilla.firefox
+          - com.logseq.Logseq
+          - org.zotero.Zotero
+          - org.flameshot.Flameshot
+          - com.nextcloud.desktopclient.nextcloud
+          - org.kde.okular
+          - org.gnome.Calculator
+          - org.kde.filelight
+          - net.lutris.Lutris
+        # remove:
+        #   - org.gnome.eog
+        #   - com.visualstudio.code
+        #   - com.bitwarden.desktop
+  - type: script
+    scripts:
+      # - install-mani.sh
+      - install-bw.sh
+    # user: {} # Also add Flathub user repo, but no user packages
