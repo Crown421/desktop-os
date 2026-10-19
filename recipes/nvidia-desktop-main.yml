@@ -7,7 +7,7 @@ description: OS image for nvidia desktop.
 
 # the base image to build on top of (FROM) and the version tag to use
 base-image: ghcr.io/wayblueorg/sway-nvidia-open
-image-version: 43
+image-version: 44
 
 modules:
   - type: systemd
