@@ -40,7 +40,7 @@ Then, rebase the existing atomic Fedora installation to the latest build:
   systemctl reboot
   ```
 
-The desktop images are pinned to Wayblue Fedora major-version tags: desktop-main to 43, nvidia-desktop-main to 44. Update the recipe versions deliberately when moving to a newer Fedora major version.
+The desktop images are pinned to the Wayblue Fedora 44 tags. Update the recipe versions deliberately when moving to a newer Fedora major version.
 
 ## Verification
 
